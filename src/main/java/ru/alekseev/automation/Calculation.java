@@ -7,6 +7,7 @@ import org.apache.commons.math3.complex.Complex;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class Calculation {
 
@@ -26,15 +27,20 @@ public class Calculation {
     private final Double i0 = 3438.15;//удельный пустотный импульс
     private final Double p0 = 1667.0; //кН
     private final Double km = 3.56;
-    private final Double pa = 0.039;//МПа
-    private final Double pk = 5.85;// МПа
-    private final Double f_kr = 0.0243284935; // квадратные метры
-    private final Double r = 356.24;//Дж/кг*К
-    private final Double t = 3635.8;//К
+    private final Double pa = 0.061;//МПа
+    private final Double pk = 14.71;// МПа
+    private final Double d_kr = 0.278;
+    private final Double f_kr = getF_kr(); // квадратные метры
+    private final Double r = 372.764;//Дж/кг*К
+    private final Double t = 3668.0;//К
     private final Double v_ks = 0.0927124; // объем кс
 
     private Equation wsZ = new Equation();
     private Equation ws_ch = new Equation();
+
+    private Double getF_kr(){
+        return (Math.PI*Math.pow(d_kr, 2)) / 4;
+    }
 
     public void calculate_Ws() {
         Double betta;
@@ -130,13 +136,19 @@ public class Calculation {
     public List<Double> finallyCalculated(List<Complex> aOdds, List<Complex> lambdas){
         List<Double> y_t = new ArrayList<>();
         double i = 0.0;
-        while (i < TIME){
-            y_t.add(aOdds.get(0).getReal() +
-                    aOdds.get(1).getReal() * Math.pow(Math.E, lambdas.get(0).getReal() * i) +
-                    2 * complexToExponentialForm(aOdds.get(2))[0] * Math.pow(Math.E, lambdas.get(1).getReal() * i) *
-                    Math.cos(complexToExponentialForm(aOdds.get(3))[1] + lambdas.get(2).getImaginary() * i));
-            i += 1;
-        }
+        double step = 1.0;
+//        while (i < TIME){
+//            y_t.add(aOdds.get(0).getReal() +
+//                    aOdds.get(1).getReal() * Math.pow(Math.E, lambdas.get(0).getReal() * i) +
+//                    2 * complexToExponentialForm(aOdds.get(2))[0] * Math.pow(Math.E, lambdas.get(1).getReal() * i) *
+//                    Math.cos(complexToExponentialForm(aOdds.get(3))[1] + lambdas.get(2).getImaginary() * i));
+//            i += 1;
+//        }
+        IntStream.range(0, (int)(TIME / step))
+                        .forEach(j -> y_t.add(aOdds.get(0).getReal() +
+                                aOdds.get(1).getReal() * Math.pow(Math.E, lambdas.get(0).getReal() * j) +
+                                2 * complexToExponentialForm(aOdds.get(2))[0] * Math.pow(Math.E, lambdas.get(1).getReal() * j) *
+                                        Math.cos(complexToExponentialForm(aOdds.get(3))[1] + lambdas.get(2).getImaginary() * j)));
         System.out.println(y_t.size());
         return y_t;
     }
