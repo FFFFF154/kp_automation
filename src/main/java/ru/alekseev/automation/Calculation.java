@@ -18,9 +18,9 @@ public class Calculation {
     private static final Double TIME = 100.0; // миллисекунды
 
     private static final Double K_R = 0.13;
-    private static final Double D = 0.45;
-    private static final Double M_R = 0.25;
-    private static final Double C = 245000.0;
+    //private static final Double d = 0.45;
+    //private static final Double mR = 0.25;
+    //private static final Double c = 245000.0;
     private static final Double K = 1.0;
 
 
@@ -33,7 +33,14 @@ public class Calculation {
     private final Double f_kr = getF_kr(); // квадратные метры
     private final Double r = 372.764;//Дж/кг*К
     private final Double t = 3668.0;//К
-    private final Double v_ks = 0.0927124; // объем кс
+
+
+    private Double d = 0.45; // декремент затухания
+    private Double mR = 0.25;// масса груза
+    private Double c = 245000.0;// жесткость пружины
+
+    //private final Double v_ks = 0.0927124; // объем кс
+    private final Double v_ks = 0.114749; // объем кс
 
     private Equation wsZ = new Equation();
     private Equation ws_ch = new Equation();
@@ -41,8 +48,23 @@ public class Calculation {
     private Double getF_kr(){
         return (Math.PI*Math.pow(d_kr, 2)) / 4;
     }
+    public void setD(Double d){
+        this.d = d;
+        calculate_Ws();
+    }
+
+    public void setMr(Double mR){
+        this.mR = mR;
+        calculate_Ws();
+    }
+
+    public void setC(Double c){
+        this.c = c;
+        calculate_Ws();
+    }
 
     public void calculate_Ws() {
+        System.out.println(getF_kr());
         Double betta;
         Double tau_pr;
         Double t_s;
@@ -53,10 +75,10 @@ public class Calculation {
         System.out.println(betta);
         System.out.println(tau_pr); // мс
         //System.out.println(a * b - a / b);
-        t_s = (Math.sqrt(M_R / C)) * 1000; // мс
+        t_s = (Math.sqrt(mR / c)) * 1000; // мс
         //t_s = 1.01;
         System.out.println(t_s);
-        double_D_T = 2 * D * t_s;
+        double_D_T = 2 * d * t_s;
         //double_D_T = 0.99;
 
 
@@ -134,22 +156,16 @@ public class Calculation {
     }
 
     public List<Double> finallyCalculated(List<Complex> aOdds, List<Complex> lambdas){
+        //System.out.println(d + "\n----------------" );
         List<Double> y_t = new ArrayList<>();
         double i = 0.0;
         double step = 1.0;
-//        while (i < TIME){
-//            y_t.add(aOdds.get(0).getReal() +
-//                    aOdds.get(1).getReal() * Math.pow(Math.E, lambdas.get(0).getReal() * i) +
-//                    2 * complexToExponentialForm(aOdds.get(2))[0] * Math.pow(Math.E, lambdas.get(1).getReal() * i) *
-//                    Math.cos(complexToExponentialForm(aOdds.get(3))[1] + lambdas.get(2).getImaginary() * i));
-//            i += 1;
-//        }
         IntStream.range(0, (int)(TIME / step))
                         .forEach(j -> y_t.add(aOdds.get(0).getReal() +
                                 aOdds.get(1).getReal() * Math.pow(Math.E, lambdas.get(0).getReal() * j) +
                                 2 * complexToExponentialForm(aOdds.get(2))[0] * Math.pow(Math.E, lambdas.get(1).getReal() * j) *
                                         Math.cos(complexToExponentialForm(aOdds.get(3))[1] + lambdas.get(2).getImaginary() * j)));
-        System.out.println(y_t.size());
+        //System.out.println(y_t.size());
         return y_t;
     }
 }
